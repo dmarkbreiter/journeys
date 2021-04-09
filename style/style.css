@@ -14,25 +14,18 @@ body {
 
 /*---------------ROUTES SVG STYLES------------------*/
 .routes > path {
-  stroke: aqua;
+  stroke: none;
   stroke-linecap: round;
   stroke-width: 4px;
 }
 
-.arrow {
-  width: 0;
-  height: 0;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-left: 30px solid blue;
-  float: right;
-}
 /*-----------------SVG ANNIMATION-------------------*/
 
 
 .routes > path {
     display: block;
-    stroke-dasharray: 400;
+
+    stroke-dasharray: 100;
     animation: dash 9s linear;
     -webkit-animation-iteration-count: infinite;
     /* Chrome, Safari, Opera */
@@ -40,6 +33,7 @@ body {
     animation-iteration-count: infinite;
     -webkit-animation-direction: reverse;
     /* Chrome, Safari, Opera */
+    marker-start: url(#arrow);
     
     animation-direction: reverse;
 }
@@ -47,262 +41,276 @@ body.end svg path {
     display: block;
     stroke: 1px #000000;
 }
+/*
 @keyframes dash {
     to {
         stroke-dashoffset: 800;
     }
 }
+*/
+.arrow {
+    offset-path: path("M 1384 338 125 208");
+    -webkit-animation-iteration-count: infinite;
+}
 
-/*-----------------INITIAL SPLASH-------------------*/
 
-#splash {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 500px;
-    margin-left: -250px;
-    margin-top: -250px;
-    background-color: #ffffff;
+#arrow0 {
+    animation: move0 20s forwards linear infinite; 
 }
-#splash > h1 {
-    text-align: center;
-    color: #505050;
-    font-weight: 100;
-    padding: 10px 50px 10px 50px;
-}
-#splash > p {
-    color: #989898;
-    text-align: justify;
-    font-weight: 400;
-    padding: 10px 30px 10px 30px;
-    font-size: 15px;
-}
-#loader {
-    z-index: 25;
-    position: absolute;
-    left: 50%;
-    margin-left: -25px;
-    top: 90%;
-    margin-top: -17px;
-    color: #fff;
-}
-#loader .ball-pulse > div {
-    width: 12px;
-    height: 12px;
-    background-color: rgb(0, 177, 137);
-}
-#play {
-    display: none;
-    z-index: 12;
-    background-color: rgb(0, 177, 137);
-    padding: 10px 35px 10px 35px;
-    font-size: 16px;
-    font-weight: 700;
-    color: #ffffff;
-    cursor: pointer;
-	margin-top: 22px;
-}
-#play.show {
-    display: inline-block;
-}
-#play:hover {
-    background-color: rgb(2, 154, 120);
-}
-#grey-area {
-	text-align: center;
-    background-color: #e6e6e6;
-    width: 100%;
-    height: 108px;
-    margin-top: 20px;
-	padding-top: 20px;
-}
-/*-----------------REPLAY-------------------*/
 
-#replay {
-    display: none;
-    z-index: 12;
-    position: absolute;
-    left: 11px;
-    bottom: 110px;
-    background-color: #ffffff;
-    padding: 2px 15px 2px 15px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #000000;
-    cursor: pointer;
-    width: 80px;
+#arrow1 {
+    animation: move1 20s forwards linear infinite;
 }
-#replay:hover {
-    background-color: #d6d6d6;
-}
-#replay > span {
-    padding-left: 20px;
-    margin: 10px;
-    position: absolute;
-}
-#replay > div {
-    position: relative;
-    margin-top: 7px;
-    margin-left: -10px;
-}
-#replay > div > i {
-    padding-left: 3px;
-	font-size: 30px!important;
-}
-/*-----------------HOME BUTTON-------------------*/
 
-#HomeButton {
-    position: absolute;
-    top: 95px;
-    left: 20px;
+#arrow2 {
+    animation: move2 20s forwards linear infinite;
 }
-.HomeButton .home {
-    width: 26px;
-    height: 26px;
-    background-color: #FFF;
-    background-image: url("../img/home.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
-    -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
-    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
-}
-.HomeButton .home:hover {
-    background-color: #eee;
-}
-/*-----------------INFO PANEL-------------------*/
 
-#panel-toggle {
-    display: none;
-    z-index: 12;
-    position: absolute;
-    top: 0;
-    right: 0;
-    background-color: #ffffff;
-    padding: 4px;
-    font-size: 8px;
-    -webkit-transition: right 1s;
-    transition: right 1s;
-	border-bottom-left-radius: 2px;
-}
-#panel-toggle:hover {
-    background-color: #d6d6d6;
-}
-#panel-toggle.slide {
-    right: 380px;
-    -webkit-transition: right 1s;
-    transition: right 1s;
-}
-.material-icons {
-    font-size: 40px!important;
-    color: rgb(0, 177, 137);
-}
-#panel {
-    width: 350px;
-    font-size: 20px;
-    font-weight: normal;
-    background-color: #ffffff;
-    position: absolute;
-    z-index: 111;
-    overflow: auto;
-    padding: 15px;
-    color: #909090;
-    right: -380px;
-    top: 0px;
-    cursor: default;
-    text-align: center;
-    height: 100%;
-    -webkit-transition: right 1s;
-    transition: right 1s;
-}
-#panel.show {
-    right: 0;
-}
-#panelMobile {
-    width: 100%;
-    height: 50px;
-    font-weight: normal;
-    background-color: rgb(230, 230, 230);
-    -webkit-font-smoothing: antialiased;
-    position: absolute;
-    z-index: 111;
-    overflow: auto;
-    color: white;
-    left: 0px;
-    top: 0px;
-    cursor: default;
-    text-align: center;
-}
-#infoMobile {
-    padding-top: 12px;
-}
-#info {
-    padding: 0px 18px 18px 18px;
-}
-#info > div > img {
-    border-radius: 250px;
-    width: 100%;
-    border-style: solid;
-    border-color: rgba(0, 197, 255, 0.78);
-    border-width: 5px;
-}
-#info > h1 {
-    font-weight: 100;
-    font-size: 36px;
-    color: #505050;
-    margin-top: 5px;
-    padding-bottom: 30px;
-}
-#info > p {
-    font-weight: normal;
-    text-align: justify;
-    font-size: 15px;
-    padding-bottom: 30px;
-}
-#info > h2 {
-    text-align: center;
-    border: 1px dashed #505050;
-    border-radius: 50%;
-    font-weight: 400;
-    color: #505050;
-    width: 40px;
-    height: 40px;
-    padding: 0px;
-    margin-right: 0;
-    margin-left: 43%;
-}
-/*-----------------ZOOM SLIDER-------------------*/
 
-.esriSimpleSlider {
-    border: none;
-    -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
-    -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
-    box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
+#arrow3 {
+    animation: move3 20s forwards linear infinite;
 }
-.esriSimpleSlider {
-    top: 20px;
-}
-.esriSimpleSlider div {
-    font-size: 17px;
-    font-weight: bold;
-    line-height: 28px;
-}
-.esriSimpleSlider .esriSimpleSliderIncrementButton {
-    border-bottom: 1px solid #e4e4e4;
-}
-.esriSimpleSlider,
-.esriSimpleSlider .esriSimpleSliderIncrementButton,
-.esriSimpleSlider .esriSimpleSliderDecrementButton,
-.HomeButton .home {
-    border-radius: 0px;
-}
-.esriSimpleSlider .esriSimpleSliderIncrementButton,
-.esriSimpleSlider .esriSimpleSliderDecrementButton {}
-/*-----------------ATTRIBUTION-------------------*/
 
-span.esriAttribution {
-    FONT-FAMILY: open sans, sans-serif;
+#arrow4 {
+    animation: move4 20s forwards linear infinite;
 }
+
+#arrow5 {
+    animation: move5 20s forwards linear infinite; 
+}
+
+#arrow6 {
+    animation: move6 20s forwards linear infinite;
+}
+
+#arrow7 {
+    animation: move7 20s forwards linear infinite;
+}
+
+
+#arrow8 {
+    animation: move8 20s forwards linear infinite;
+}
+
+#arrow9 {
+    animation: move9 20s forwards linear infinite;
+}
+
+
+@keyframes move0 {
+    0% {
+      offset-distance: 0%;
+    }
+   
+     95% {
+      opacity:1;
+      
+    }
+     100% {
+      offset-distance: 100%;
+      opacity:0;
+    }
+   }
+
+@keyframes move1 {
+    0% {
+      offset-distance: 10%;
+    }
+    85% {
+      opacity:1;
+    }
+    90% {
+      offset-distance: 100%;
+      opacity:0;
+    }
+    91% {
+      offset-distance: 0%;
+      opacity:0;
+      
+    }
+    100% {
+      offset-distance: 10%;
+    }
+   }
+@keyframes move2 {
+0% {
+    offset-distance: 20%;
+}
+75% {
+    opacity:1;
+}
+80% {
+    offset-distance: 100%;
+    opacity:0;
+}
+81% {
+    offset-distance: 0%;
+    opacity:0;
+    
+}
+100% {
+    offset-distance: 20%;
+}
+}
+
+@keyframes move3 {
+    0% {
+        offset-distance: 30%;
+    }
+    65% {
+        opacity:1;
+    }
+    70% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    71% {
+        offset-distance: 0%;
+        opacity:0;
+        
+    }
+    100% {
+        offset-distance: 30%;
+    }
+ }
+
+ @keyframes move4 {
+    0% {
+        offset-distance: 40%;
+    }
+    55% {
+        opacity:1;
+    }
+    60% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    61% {
+        offset-distance: 0%;
+        opacity:0;
+        
+    }
+    100% {
+        offset-distance: 40%;
+    }
+ }
+
+
+ @keyframes move5 {
+    0% {
+        offset-distance: 50%;
+    }
+    45% {
+        opacity:1;
+    }
+    50% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    51% {
+        offset-distance: 0%;
+        opacity:0;
+        
+    }
+    100% {
+        offset-distance: 50%;
+    }
+ }
+
+ @keyframes move6 {
+    0% {
+        offset-distance: 60%;
+    }
+    35% {
+        opacity:1;
+    }
+    40% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    41% {
+        offset-distance: 0%;
+        opacity:0;
+        
+    }
+    100% {
+        offset-distance: 60%;
+    }
+ }
+
+ @keyframes move7 {
+    0% {
+        offset-distance: 70%;
+    }
+    25% {
+        opacity:1;
+    }
+    30% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    31% {
+        offset-distance: 0%;
+        opacity:0;
+        
+    }
+    100% {
+        offset-distance: 70%;
+    }
+ }
+
+ @keyframes move8 {
+    0% {
+        offset-distance: 80%;
+    }
+    15% {
+        opacity:1;
+    }
+    20% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    21% {
+        offset-distance: 0%;
+        opacity:0;
+        
+    }
+    100% {
+        offset-distance: 80%;
+    }
+ }
+
+
+ @keyframes move9 {
+    0% {
+        offset-distance: 90%;
+    }
+    5% {
+        opacity:1;
+    }
+    10% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    11% {
+        offset-distance: 0%;
+        opacity:0;
+        
+    }
+    100% {
+        offset-distance: 90%;
+    }
+ }
+       
+       
+   
+
+
+
+
+
+
+
 /*-----------------RETURN INFO/DOCKED POP-UP-------------------*/
 
 .card {
