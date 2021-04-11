@@ -20,8 +20,13 @@ body {
 }
 
 /*-----------------SVG ANNIMATION-------------------*/
-
-
+.cities > path{
+    stroke: orange;
+    stroke-width: 20;
+    stroke-opacity: 0.85;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
 .routes > path {
     display: block;
 
@@ -48,12 +53,17 @@ body.end svg path {
     }
 }
 */
+/*
 .arrow {
     offset-path: path("M 1384 338 125 208");
+    transform-origin: 1% 2%;
     -webkit-animation-iteration-count: infinite;
+    fill: orange;
 }
+*/
 
 
+/*
 #arrow0 {
     animation: move0 20s forwards linear infinite; 
 }
@@ -95,8 +105,9 @@ body.end svg path {
 #arrow9 {
     animation: move9 20s forwards linear infinite;
 }
+*/
 
-
+/*
 @keyframes move0 {
     0% {
       offset-distance: 0%;
@@ -126,31 +137,35 @@ body.end svg path {
     91% {
       offset-distance: 0%;
       opacity:0;
-      
+    }
+    95% {
+        opacity: 1;
     }
     100% {
       offset-distance: 10%;
     }
    }
 @keyframes move2 {
-0% {
-    offset-distance: 20%;
-}
-75% {
-    opacity:1;
-}
-80% {
-    offset-distance: 100%;
-    opacity:0;
-}
-81% {
-    offset-distance: 0%;
-    opacity:0;
-    
-}
-100% {
-    offset-distance: 20%;
-}
+    0% {
+        offset-distance: 20%;
+    }
+    75% {
+        opacity:1;
+    }
+    80% {
+        offset-distance: 100%;
+        opacity:0;
+    }
+    81% {
+        offset-distance: 0%;
+        opacity:0;
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        offset-distance: 20%;
+    }
 }
 
 @keyframes move3 {
@@ -166,8 +181,10 @@ body.end svg path {
     }
     71% {
         offset-distance: 0%;
-        opacity:0;
-        
+        opacity:0;  
+    }
+    75% {
+        opacity: 1;
     }
     100% {
         offset-distance: 30%;
@@ -187,8 +204,10 @@ body.end svg path {
     }
     61% {
         offset-distance: 0%;
-        opacity:0;
-        
+        opacity:0; 
+    }
+    65% {
+        opacity:1;
     }
     100% {
         offset-distance: 40%;
@@ -210,7 +229,9 @@ body.end svg path {
     51% {
         offset-distance: 0%;
         opacity:0;
-        
+    }
+    55% {
+        opacity: 1;
     }
     100% {
         offset-distance: 50%;
@@ -231,7 +252,9 @@ body.end svg path {
     41% {
         offset-distance: 0%;
         opacity:0;
-        
+    }
+    45% {
+        opacity:1;
     }
     100% {
         offset-distance: 60%;
@@ -252,7 +275,9 @@ body.end svg path {
     31% {
         offset-distance: 0%;
         opacity:0;
-        
+    }
+    35% {
+        opacity:1;
     }
     100% {
         offset-distance: 70%;
@@ -272,8 +297,10 @@ body.end svg path {
     }
     21% {
         offset-distance: 0%;
-        opacity:0;
-        
+        opacity:0; 
+    }
+    25% {
+        opacity:1;
     }
     100% {
         offset-distance: 80%;
@@ -294,13 +321,16 @@ body.end svg path {
     }
     11% {
         offset-distance: 0%;
-        opacity:0;
-        
+        opacity:0;   
+    }
+    15% {
+        opacity:1;
     }
     100% {
         offset-distance: 90%;
     }
  }
+ */
        
        
    

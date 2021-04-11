@@ -21,12 +21,12 @@ const routesObject = {
 
 
 /*Replace with your own view lines!*/
-var viewLines = "https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/linkages/FeatureServer/0"
+var viewLines = "https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/linkages/FeatureServer/0";
 
 
 require([
     "esri/renderers/SimpleRenderer",
-    "esri/symbols/SimpleLineSymbol",
+    "esri/symbols/SimpleFillSymbol",
     "esri/map",
     "esri/layers/FeatureLayer",
     "dojo/dom-class",
@@ -39,7 +39,7 @@ require([
 
 ], function(
     SimpleRenderer,
-    SimpleLineSymbol,
+    SimpleFillSymbol,
     Map,
     FeatureLayer,
     domClass,
@@ -74,17 +74,30 @@ require([
     // Modifies the polygon/polyline in place.
 
 
-
     //load feature layer
     var featureLayer = new FeatureLayer(viewLines, {
         mode: FeatureLayer.MODE_ONDEMAND,
         outFields: ["*"],
         className: "routes"
+        
     });
 
-
-    map.addLayer(featureLayer);
+    var citiesLayer = new FeatureLayer('https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/cities/FeatureServer/0', {
+        mode: FeatureLayer.MODE_ONDEMAND,
+        outFields: ["*"],
+        className: "cities",
+        styling: false
+    })
+    String.prototype.capitalize = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1)
+      }
+    var cities = route.split("-")
     featureLayer.setDefinitionExpression(`name = '${route}'`);
+    citiesLayer.setDefinitionExpression(`City = '${cities[0]}' OR City = '${cities[1]}'`)
+    map.addLayer(featureLayer);
+    map.addLayer(citiesLayer);
+
+    
 
 
     
@@ -228,7 +241,7 @@ window.onload = function() {
     var svg = document.getElementsByTagName('svg')[0];
     midMarkers(svg, 6);
     */
-
+/*
     function midMarkers(svg,spacing){
         let path = document.getElementsByTagName('path')[0];
         console.log(path)
@@ -249,6 +262,7 @@ window.onload = function() {
         }
     }
 }
+*/
 
 
 var waitForEl = function(selector, callback) {
@@ -277,18 +291,6 @@ var waitForEl = function(selector, callback) {
     */
   };
 
-  var chevronArrowSvg = `
-  <defs id="defs3051">
-    <style type="text/css" id="current-color-scheme">
-      .ColorScheme-Text {
-        color:#4d4d4d;
-      }
-      </style>
-  </defs>
-  <g transform="translate(-421.71429,-531.79074)">
-    <path style="fill:currentColor;fill-opacity:1;stroke:none" d="m 426.71429,539.79074 1.95349,-1.875 4.29767,-4.125 0.13024,0.125 0.39069,0.375 0.22791,0.21875 -4.29768,4.125 -1.23721,1.15625 1.23721,1.15625 4.29768,4.125 -0.74884,0.71875 -4.29767,-4.125 -1.95349,-1.875 z" id="rect4176" class="ColorScheme-Text"/>
-  </g>
-</marker>`
 
   waitForEl('.routes', () => {
     
@@ -296,6 +298,7 @@ var waitForEl = function(selector, callback) {
     var routesParent = routes.parentElement;
     console.log(routes)
     var routesPath = routes.getElementsByTagName('path')[0];
+    routesPath.id = 'routePath';
     var defs = routesParent.getElementsByTagName('defs')[0];
     
     
@@ -308,7 +311,7 @@ var waitForEl = function(selector, callback) {
     //marker.setAttribute('viewBox', "0 0 160 160");
     marker.setAttribute('markerWidth', "6");
     marker.setAttribute('markerHeight', "6");
-    marker.innerHTML = chevronArrowSvg
+
     defs.appendChild(marker);
     routesPath.setAttribute('marker-pattern', 'url(#arrow)');
 
@@ -317,11 +320,14 @@ var waitForEl = function(selector, callback) {
     routesParent.appendChild(styles);
     
     styles.innerHTML = `.arrow {
-        offset-path: path(${routesPath.getAttribute('d')});
+        offset-path: path('${routesPath.getAttribute('d')}');
         animation-iteration-count: infinite;
+        transform-origin: 1% 2%;
+        -webkit-animation-iteration-count: infinite;
+        fill: orange;
     }`
 
-    createArrow(10, routes);
+    createArrow(30, routes);
 })
 
 function createArrow(number, parent) {
@@ -336,11 +342,14 @@ function createArrow(number, parent) {
             'markerWidth' : "20",
             'markerHeight' : "20",
             "orient": "auto", 
-            "fill" : "#49f",
-            "id" : `arrow${i}`
+            //"fill" : "#49f",
+            "id" : `arrow${i}`,
+            "style": `animation: move${i} 50s forwards linear infinite`
         });
-        arrowPath.classList.add(`arrow`)
+        //arrowPath.style.animation = `move${i} 50s forwards linear infinite`
+        arrowPath.classList.add(`arrow`);
         parent.appendChild(arrowPath);
+        createArrowAnination(i, number);
     }
     
 }
@@ -352,9 +361,62 @@ function setAttributes(el, attrs) {
     }
   }
 
+  var element = document.createElement('style');
+  var css;
 
-//routesDiv.appendChild(arrowDiv);
+// Append style element to head
+document.head.appendChild(element);
 
-    
-    
-    
+// Reference to the stylesheet
+css = element.sheet;
+
+function createArrowAnination(i, number) {
+    const rate = 100/number;
+    const start = i * rate;
+    const end = 100 - start;
+    if (i === 0) {
+        var animationRule = `
+        @keyframes move0 {
+            0% {
+              offset-distance: 0%;
+            }
+           
+             95% {
+              opacity:1;
+              
+            }
+             100% {
+              offset-distance: 100%;
+              opacity:0;
+            }
+        }`
+
+    } else {
+        var animationRule = `
+        @keyframes move${i} {
+            0% {
+                offset-distance: ${start}%;
+            }
+            ${end-5}% {
+                opacity: 1;
+            }
+            ${end}% {
+                offset-distance: 100%;
+                opacity: 0;
+            }
+            ${end+1}% {
+                offset-distance: 0%;
+                opacity: 0;
+            }
+            ${end+5}% {
+                opacity: 1
+            }
+            100% {
+                offset-distance: ${start}%;
+            }
+        }`  
+    }
+
+    css.insertRule(animationRule, i);  
+  }
+}
