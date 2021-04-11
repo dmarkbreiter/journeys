@@ -25,54 +25,38 @@ var viewLines = "https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/servi
 
 
 require([
-    "esri/renderers/SimpleRenderer",
-    "esri/symbols/SimpleFillSymbol",
+    "esri/symbols/TextSymbol",
+    "esri/layers/LabelClass",
+    "esri/Color",
+    "esri/layers/VectorTileLayer",
     "esri/map",
     "esri/layers/FeatureLayer",
-    "dojo/dom-class",
-    "dojo/dom-construct",
-    "dojo/on",
-    "esri/layers/ArcGISTiledMapServiceLayer",
-    "esri/dijit/HomeButton",
-    "dojo/domReady!",
-    "esri/basemaps"
-
 ], function(
-    SimpleRenderer,
-    SimpleFillSymbol,
+    TextSymbol,
+    LabelClass,
+    Color,
+    VectorTileLayer,
     Map,
     FeatureLayer,
-    domClass,
-    domConstruct,
-    on,
-    ArcGISTiledMapServiceLayer,
-    HomeButton,
-    esriBasemaps
 ) {
 
 
 
     // ---------- CREATE MAP AND LOAD LAYERS ------------
 
+    //create basemap vector tile layer
+    const basemap = new VectorTileLayer("https://tuftsgis.maps.arcgis.com/sharing/rest/content/items/b76b0646a58b4ab181e8dc146964178c/resources/styles/root.json")
+    
     //create map
     map = new Map("map", {
         center: routesObject[route].center,
         zoom: routesObject[route].zoom,
-        basemap: "dark-gray-vector",
-        slider: false
+        slider: false,
+        showLabels: true
         //minZoom: 2,
     });
 
-
-    //load custom tiled basemap
-    //var tiled = new ArcGISTiledMapServiceLayer("http://tiles.arcgis.com/tiles/WQ9KVmV6xGGMnCiQ/arcgis/rest/services/CoastalViewsBasemap/MapServer");
-    //map.addLayer(tiled);
-
-        // Given a polygon/polyline, create intermediary points along the
-    // "straightaways" spaced no closer than `spacing` distance apart.
-    // Intermediary points along each section are always evenly spaced.
-    // Modifies the polygon/polyline in place.
-
+    map.addLayer(basemap);
 
     //load feature layer
     var featureLayer = new FeatureLayer(viewLines, {
@@ -88,6 +72,21 @@ require([
         className: "cities",
         styling: false
     })
+    labelColor = new Color('white')
+    var citiesLabel = new TextSymbol().setColor(labelColor);
+    citiesLabel.font.setSize("14pt");
+    citiesLabel.font.setFamily("avenir");
+
+    var labelJson = {
+        "labelExpressionInfo": {"value": "{City}"},
+        "labelPlacement": "below-center"
+      };
+
+    var labelClass = new LabelClass(labelJson);
+    labelClass.symbol = citiesLabel; // symbol also can be set in LabelClass' json
+    citiesLayer.setLabelingInfo([ labelClass ]);
+
+
     String.prototype.capitalize = function() {
         return this.charAt(0).toUpperCase() + this.slice(1)
       }
@@ -96,12 +95,6 @@ require([
     citiesLayer.setDefinitionExpression(`City = '${cities[0]}' OR City = '${cities[1]}'`)
     map.addLayer(featureLayer);
     map.addLayer(citiesLayer);
-
-    
-
-
-    
-
 
 
     // ---------- MOUSE EVENTS ------------	
@@ -128,100 +121,6 @@ require([
 
     }
 
-
-    // ---------- BROWSER DETECTION------------		
-
-    //detect IE
-    //returns version of IE or false, if browser is not Internet Explorer
-
-    function detectIE() {
-        var ua = window.navigator.userAgent;
-
-        var trident = ua.indexOf('Trident/');
-        if (trident > 0) {
-            // IE 11 => return version number
-            var rv = ua.indexOf('rv:');
-            return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-        }
-
-        var edge = ua.indexOf('Edge/');
-        if (edge > 0) {
-            // Edge (IE 12+) => return version number
-            return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
-        }
-
-        // other browser
-        return false;
-    }
-
-    // ---------- ANNIMATION------------		
-
-
-/*
-    $(function() {
-        //on load hide replay, pop-up(return) and info panel
-        $("#replay, #return, #panel-toggle").hide();
-        // detect browser
-        var version = detectIE();
-
-        //if not IE or Edge play svg annimation and display replay button at end
-        if (version === false) {
-            $("#play").on('click', function() {
-                //when click reveal, remove play button, remove splash and annimate
-                $("body").addClass("animate").removeClass('infoshown');
-                $("#play, #splash").fadeOut('fast');
-                setTimeout(function() {
-                    //add replay button, pop-up (return), remove annimation, display svg, enable mouse over and unlock map
-                    $("#replay, #panel-toggle, #return").fadeIn("slow");
-                    $("body").removeClass("animate").addClass('infoshown');
-                    $("body").addClass("end");
-                    enableMouseOver();
-                    unlockMap();
-                }, 7000);
-            });
-            //replay function
-            $("#replay").on('click', function() {
-                //when click replay, remove ui, lock map and annimate
-                lockMap();
-                $('#replay, #return, #panel, #panel-toggle').fadeOut('fast');
-                mouseOver.remove();
-                mouseOut.remove();
-                setTimeout(function() {
-                    $("body").addClass("animate").removeClass('infoshown');
-                }, 7);
-                setTimeout(function() {
-                    //add replay button, pop-up (return), remove annimation, display svg, enable mouse over and unlock map
-                    unlockMap();
-                    $('#replay, #return').fadeIn("slow");
-                    $("body").removeClass("animate").addClass('infoshown');
-                    $("body").addClass("end");
-                    $("#panel, #panel-toggle").fadeIn('fast');
-                    enableMouseOver();
-                }, 7000);
-            });
-            //if IE or Edge  DO NOT play svg annimation. Instead just show the lines and don't present a replay button
-        } else if (version >= 12) {
-            $("#play").on('click', function() {
-                $("#play, #splash").fadeOut('fast');
-                $("#panel-toggle, #return").fadeIn("slow");
-                $("body").addClass("end");
-                enableMouseOver();
-                unlockMap();
-            });
-            //if IE or Edge  DO NOT play svg annimation. Instead just show the lines and don't present a replay button
-        } else {
-            $("#play").on('click', function() {
-                $("#play, #splash").fadeOut('fast');
-                $("#panel-toggle, #return").fadeIn("slow");
-                $("body").addClass("end");
-                enableMouseOver();
-                unlockMap();
-            });
-        }
-    });
-    */
-
-
 });
 
 // ---------- PREVENT SCROLLING ON MOBILE DEVICES ------------
@@ -230,40 +129,7 @@ document.ontouchmove = function(event) {
 }
 
 
-
-
 window.onload = function() {
-
-    /*
-    var routesPath = routes.getElementsByTagName('path')[0];
-    routesPath.setAttribute('marker-end', 'url(#arrow)');
-    var routesDiv = document.getElementsByClassName('routes');
-    var svg = document.getElementsByTagName('svg')[0];
-    midMarkers(svg, 6);
-    */
-/*
-    function midMarkers(svg,spacing){
-        let path = document.getElementsByTagName('path')[0];
-        console.log(path)
-        for (var pts=path.points,i=1;i<pts.numberOfItems;++i){
-        var p0=pts.getItem(i-1), p1=pts.getItem(i);
-        var dx=p1.x-p0.x, dy=p1.y-p0.y;
-        var d = Math.sqrt(dx*dx+dy*dy);
-        var numPoints = Math.floor( d/spacing );
-        dx /= numPoints;
-        dy /= numPoints;
-        for (var j=numPoints-1;j>0;--j){
-            var pt = svg.createSVGPoint();
-            pt.x = p0.x+dx*j;
-            pt.y = p0.y+dy*j;
-            pts.insertItemBefore(pt,i);
-        }
-        if (numPoints>0) i += numPoints-1;
-        }
-    }
-}
-*/
-
 
 var waitForEl = function(selector, callback) {
     try {
@@ -322,9 +188,9 @@ var waitForEl = function(selector, callback) {
     styles.innerHTML = `.arrow {
         offset-path: path('${routesPath.getAttribute('d')}');
         animation-iteration-count: infinite;
-        transform-origin: 1% 2%;
+        transform-origin: 0% 1%;
         -webkit-animation-iteration-count: infinite;
-        fill: orange;
+        fill: #D45D04;
     }`
 
     createArrow(30, routes);
@@ -419,4 +285,14 @@ function createArrowAnination(i, number) {
 
     css.insertRule(animationRule, i);  
   }
+  addTextBuffer();
+  
+}
+
+
+function addTextBuffer() {
+    const labels= document.getElementsByTagNameNS("http://www.w3.org/2000/svg", 'text');
+    for (const label of labels) {
+        label.setAttribute('y', `${parseInt(label.getAttribute('y')) + 20}`);
+    }
 }

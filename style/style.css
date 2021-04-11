@@ -19,11 +19,12 @@ body {
   stroke-width: 4px;
 }
 
+
 /*-----------------SVG ANNIMATION-------------------*/
 .cities > path{
-    stroke: orange;
+    stroke:#D45D04;
     stroke-width: 20;
-    stroke-opacity: 0.85;
+    stroke-opacity: 0.99;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
