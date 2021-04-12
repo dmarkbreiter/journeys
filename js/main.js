@@ -17,7 +17,7 @@ const routesObject = {
         "labelPosition": "center-bottom"
     },
     "syria-turkey":  {
-        "zoom": 5,
+        "zoom": 4,
         "labelPosition": "auto"
     },
 }
