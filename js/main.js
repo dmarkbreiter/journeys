@@ -1,6 +1,9 @@
 var map;
 var mouseOver; //used for feature hover
 var mouseOut; //used for feature hover
+var styles;
+var featureLayer;
+var css;
 
 const queryString = window.location.search;
 
@@ -10,18 +13,18 @@ const route = urlParams.get('route');
 
 const routesObject = {
     "tehran-athens": {
-        "center": [36.8, 36.8],
-        "zoom": 5
+        "zoom": 4,
+        "labelPosition": "center-bottom"
     },
-    "aleppo-turkishBorder":  {
-        "center": [36.8, 36.8],
-        "zoom": 9
+    "syria-turkey":  {
+        "zoom": 5,
+        "labelPosition": "auto"
     },
 }
 
 
 /*Replace with your own view lines!*/
-var viewLines = "https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/linkages/FeatureServer/0";
+var viewLines = "https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/Journeys_Linakages/FeatureServer/0";
 
 
 require([
@@ -49,7 +52,7 @@ require([
     
     //create map
     map = new Map("map", {
-        center: routesObject[route].center,
+        center: [36.8, 36.8],
         zoom: routesObject[route].zoom,
         slider: false,
         showLabels: true
@@ -58,28 +61,33 @@ require([
 
     map.addLayer(basemap);
 
+    map.on("load", () => {
+        map.disableMapNavigation();
+    })
+
     //load feature layer
-    var featureLayer = new FeatureLayer(viewLines, {
-        mode: FeatureLayer.MODE_ONDEMAND,
+    featureLayer = new FeatureLayer(viewLines, {
+        mode: FeatureLayer.MODE_SNAPSHOT,
         outFields: ["*"],
         className: "routes"
         
     });
 
-    var citiesLayer = new FeatureLayer('https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/cities/FeatureServer/0', {
+    var citiesLayer = new FeatureLayer('https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/journeys_destinations/FeatureServer/0', {
         mode: FeatureLayer.MODE_ONDEMAND,
         outFields: ["*"],
         className: "cities",
         styling: false
-    })
-    labelColor = new Color('white')
+    });
+
+    labelColor = new Color('white');
     var citiesLabel = new TextSymbol().setColor(labelColor);
-    citiesLabel.font.setSize("14pt");
+    citiesLabel.font.setSize("0pt");
     citiesLabel.font.setFamily("avenir");
 
     var labelJson = {
         "labelExpressionInfo": {"value": "{City}"},
-        "labelPlacement": "below-center"
+        "labelPlacement": "left-center"
       };
 
     var labelClass = new LabelClass(labelJson);
@@ -89,12 +97,16 @@ require([
 
     String.prototype.capitalize = function() {
         return this.charAt(0).toUpperCase() + this.slice(1)
-      }
+    }
+
     var cities = route.split("-")
     featureLayer.setDefinitionExpression(`name = '${route}'`);
     citiesLayer.setDefinitionExpression(`City = '${cities[0]}' OR City = '${cities[1]}'`)
     map.addLayer(featureLayer);
     map.addLayer(citiesLayer);
+
+    
+
 
 
     // ---------- MOUSE EVENTS ------------	
@@ -131,7 +143,7 @@ document.ontouchmove = function(event) {
 
 window.onload = function() {
 
-var waitForEl = function(selector, callback) {
+ function waitForEl(selector, callback) {
     try {
       
       if (jQuery(selector)[0].childNodes.length > 1) {
@@ -148,18 +160,12 @@ var waitForEl = function(selector, callback) {
             waitForEl(selector, callback);
           }, 100);
     }
-    /*
-    if (jQuery(selector).childNodes.length) {
-      callback();
-    } else {
-
-    }
-    */
   };
 
 
   waitForEl('.routes', () => {
     
+    map.centerAt(featureLayer.graphics[0]._extent.getCenter());
     var routes = document.getElementsByClassName('routes')[0];
     var routesParent = routes.parentElement;
     console.log(routes)
@@ -182,43 +188,75 @@ var waitForEl = function(selector, callback) {
     routesPath.setAttribute('marker-pattern', 'url(#arrow)');
 
     // Add styles to svg
-    var styles = document.createElementNS("http://www.w3.org/2000/svg", 'style');
+    styles = document.createElementNS("http://www.w3.org/2000/svg", 'style');
     routesParent.appendChild(styles);
-    
-    styles.innerHTML = `.arrow {
-        offset-path: path('${routesPath.getAttribute('d')}');
-        animation-iteration-count: infinite;
-        transform-origin: 0% 1%;
-        -webkit-animation-iteration-count: infinite;
-        fill: #D45D04;
-    }`
 
-    createArrow(30, routes);
+    createLabels(routesParent, routesObject[route].labelPosition);
+
+    setAnimationPath(routes.getElementsByTagName('path')[0].getAttribute('d'));
+
+    
+
+    map.on("extent-change", function(e){
+        waitForEl(('.routes'), () => {
+            const path = routes.getElementsByTagName('path')[0].getAttribute('d')
+            setAnimationPath(path);
+            if (e.levelChange) {
+                createArrow(routes);
+            }
+            
+            //console.log(routes.getElementsByTagName('path')[0].getAttribute('d'))
+
+        })
+    })
+    
+
+
+    createArrow(routes);
 })
 
-function createArrow(number, parent) {
-    for (var i = 0; i < number; i++) {
-        const arrowPath = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-        setAttributes(arrowPath, {
-            'd' : "M0 0 10 0 20 10 10 20 0 20 10 10Z",
-            'viewBox' : "0 0 20 20",
-            'refX' : "10",
-            'refY' : '10',
-            'markerUnits' : 'userSpaceOnUse',
-            'markerWidth' : "20",
-            'markerHeight' : "20",
-            "orient": "auto", 
-            //"fill" : "#49f",
-            "id" : `arrow${i}`,
-            "style": `animation: move${i} 50s forwards linear infinite`
-        });
-        //arrowPath.style.animation = `move${i} 50s forwards linear infinite`
-        arrowPath.classList.add(`arrow`);
-        parent.appendChild(arrowPath);
-        createArrowAnination(i, number);
-    }
+
+function createLabels(parent, position) {
+
     
+    const textCollection = jQuery('text');
+
+    if (jQuery('.cities-labels').length < 2) {
+        for (var text of textCollection) {
+            matrices = {
+                "center-right" : 'matrix(1, 0, 0, 1, 0, 0)',
+                "center-top": {
+                    'x': parseInt(text.getAttribute('x')) - 40,
+                    'y': parseInt(text.getAttribute('y')) - 20
+                },
+                "center-bottom": {
+                    'x': parseInt(text.getAttribute('x')) - 40,
+                    'y': parseInt(text.getAttribute('y')) + 35
+                },
+                "auto" : {
+                    'x': parseInt(text.getAttribute('x')),
+                    'y': parseInt(text.getAttribute('y'))
+                }
+            }
+            const [x, y] = Object.values(matrices[position])
+            //y = y.toString();
+            //console.log(y)
+            var label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+            setAttributes(label, {
+                'x': x.toString(),
+                'y': y.toString(), //text.getAttribute('y'), //`${text.getAttribute('y') + 1}` ,
+                'baseline': 'alphabetic',
+                'class': 'cities-labels'
+                
+            })
+            label.innerHTML = text.innerHTML;
+            parent.appendChild(label);
+        }
+    }
 }
+
+
+
 
 // Helper function to set multiple attributes on a DOM element with object
 function setAttributes(el, attrs) {
@@ -227,8 +265,7 @@ function setAttributes(el, attrs) {
     }
   }
 
-  var element = document.createElement('style');
-  var css;
+var element = document.createElement('style');
 
 // Append style element to head
 document.head.appendChild(element);
@@ -236,7 +273,33 @@ document.head.appendChild(element);
 // Reference to the stylesheet
 css = element.sheet;
 
-function createArrowAnination(i, number) {
+
+function createArrow(parent) {
+    const path = jQuery('.routes > path')[0]
+    const length = path.getTotalLength();
+    const numberArrows = Math.round(length/25);
+    clearCssSheet(css);
+    for (var i = 0; i < numberArrows; i++) {
+        const arrowPath = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        setAttributes(arrowPath, {
+            'd' : "M0 0 10 0 20 10 10 20 0 20 10 10Z",
+            'viewBox' : "0 0 20 20",
+            'refX' : "10",
+            'refY' : '10', 
+            //"fill" : "#49f",
+            "id" : `arrow${i}`,
+            "class": 'arrow',
+            "style": `animation: move${i} 50s forwards linear infinite`
+        });
+        //arrowPath.style.animation = `move${i} 50s forwards linear infinite`
+        parent.appendChild(arrowPath);
+        
+        createArrowAnimation(i, numberArrows);
+    }
+    
+}
+
+function createArrowAnimation(i, number) {
     const rate = 100/number;
     const start = i * rate;
     const end = 100 - start;
@@ -285,14 +348,34 @@ function createArrowAnination(i, number) {
 
     css.insertRule(animationRule, i);  
   }
-  addTextBuffer();
+ 
   
 }
-
 
 function addTextBuffer() {
     const labels= document.getElementsByTagNameNS("http://www.w3.org/2000/svg", 'text');
     for (const label of labels) {
-        label.setAttribute('y', `${parseInt(label.getAttribute('y')) + 20}`);
+        label.setAttribute('y', `${parseInt(label.getAttribute('y')) + 50}`);
     }
 }
+
+function setAnimationPath(path) {
+    styles.innerHTML = '';
+    styles.innerHTML = `.arrow {
+        offset-path: path('${path}');
+        animation-iteration-count: infinite;
+        transform-origin: 0% 2.5%;
+        -webkit-animation-iteration-count: infinite;
+        fill: #D45D04;
+    }`
+    
+}
+
+function clearCssSheet(css) {
+    if (css.cssRules) { // all browsers, except IE before version 9
+        for (let i=0; i<css.cssRules.length; i++) {
+            css.deleteRule(i);
+        }  
+    }
+}
+
