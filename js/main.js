@@ -38,6 +38,10 @@ const routesObject = {
     "yemen-jordan": {
         zoom: 3,
         "labelPosition": "auto"
+    },
+    "iraq-jordan-australia": {
+        zoom: 2,
+        "labelPosition": "auto"
     }
 }
 
