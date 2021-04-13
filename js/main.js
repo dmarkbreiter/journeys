@@ -72,7 +72,7 @@ require([
     map.addLayer(basemap);
 
     map.on("load", () => {
-        //map.disableMapNavigation();
+        map.disableMapNavigation();
     })
 
     //load feature layer
@@ -225,7 +225,11 @@ window.onload = function() {
                 const path = routes.getElementsByTagName('path')[0].getAttribute('d')
                 setAnimationPath(path);
                 if (e.levelChange) {
+                    if (jQuery('.arrow').length > 0) {
+                        document.querySelectorAll('.arrow').forEach(e => e.remove());
+                    }
                     createArrow(routes);
+                    
                 }
                 createLabels(routesParent, routesObject[route].labelPosition);
                 
