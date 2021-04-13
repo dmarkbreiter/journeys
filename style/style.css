@@ -1,3 +1,7 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans&display=swap');
+
+
 html,
 body,
 #map {
@@ -9,12 +13,12 @@ body,
 }
 body {
     overflow: hidden;
-	font-family: open sans, sans-serif, Arial;
+	font-family: 'Public Sans', open sans, sans-serif, Arial;
 }
 
 text {
-    fill: white;
-    font: sans-serif;
+    fill: rgb(202, 202, 202);
+    font: 'Public Sans', sans-serif;
 }
 /*---------------ROUTES SVG STYLES------------------*/
 .routes > path {

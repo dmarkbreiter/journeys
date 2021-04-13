@@ -4,6 +4,7 @@ var mouseOut; //used for feature hover
 var styles;
 var featureLayer;
 var css;
+var cities;
 
 const queryString = window.location.search;
 
@@ -20,6 +21,11 @@ const routesObject = {
         "zoom": 4,
         "labelPosition": "auto"
     },
+    "afghanistan-zahedan-greece": {
+        "zoom": 3,
+        "labelPosition": "center-bottom"
+
+    }
 }
 
 
@@ -99,9 +105,22 @@ require([
         return this.charAt(0).toUpperCase() + this.slice(1)
     }
 
-    var cities = route.split("-")
+    cities = route.split("-")
     featureLayer.setDefinitionExpression(`name = '${route}'`);
-    citiesLayer.setDefinitionExpression(`City = '${cities[0]}' OR City = '${cities[1]}'`)
+    const citiesDefinition = (cities) => {
+        var definition = `City = '${cities[0]}' OR City = '${cities[1]}'`
+        if (cities.length === 2) {
+            return defintion
+        } else if (cities.length > 2) {
+            var i = 2;
+            while (i < cities.length) {
+                definition += `OR City = '${cities[i]}'`
+                i++
+            }
+            return definition
+        }
+    }
+    citiesLayer.setDefinitionExpression(citiesDefinition(cities))
     map.addLayer(featureLayer);
     map.addLayer(citiesLayer);
 
@@ -217,11 +236,10 @@ window.onload = function() {
 
 
 function createLabels(parent, position) {
-
     
     const textCollection = jQuery('text');
 
-    if (jQuery('.cities-labels').length < 2) {
+    if (jQuery('.cities-labels').length < cities.length) {
         for (var text of textCollection) {
             matrices = {
                 "center-right" : 'matrix(1, 0, 0, 1, 0, 0)',
@@ -231,7 +249,7 @@ function createLabels(parent, position) {
                 },
                 "center-bottom": {
                     'x': parseInt(text.getAttribute('x')) - 40,
-                    'y': parseInt(text.getAttribute('y')) + 35
+                    'y': parseInt(text.getAttribute('y')) + 40
                 },
                 "auto" : {
                     'x': parseInt(text.getAttribute('x')),
@@ -330,7 +348,7 @@ function createArrowAnimation(i, number) {
                 opacity: 1;
             }
             ${end}% {
-                offset-distance: 100%;
+                offset-distance: 99%;
                 opacity: 0;
             }
             ${end+1}% {
