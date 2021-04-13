@@ -34,6 +34,10 @@ const routesObject = {
     "damascus-jordan": {
         zoom: 5,
         "labelPosition": "auto"
+    },
+    "yemen-jordan": {
+        zoom: 3,
+        "labelPosition": "auto"
     }
 }
 
