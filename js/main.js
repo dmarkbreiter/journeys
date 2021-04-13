@@ -110,7 +110,7 @@ require([
     const citiesDefinition = (cities) => {
         var definition = `City = '${cities[0]}' OR City = '${cities[1]}'`
         if (cities.length === 2) {
-            return defintion
+            return definition
         } else if (cities.length > 2) {
             var i = 2;
             while (i < cities.length) {
