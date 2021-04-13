@@ -41,7 +41,7 @@ const routesObject = {
     },
     "iraq-jordan-australia": {
         zoom: 2,
-        "labelPosition": "auto"
+        "labelPosition": "center-top"
     }
 }
 
@@ -201,7 +201,14 @@ window.onload = function() {
 
     waitForEl('.routes', () => {
         var routes = document.getElementsByClassName('routes')[0];
-        map.centerAndZoom(featureLayer.graphics[0]._extent.getCenter(), routesObject[route].zoom);
+        if (route in routesObject) { 
+            var zoom = routesObject[route].zoom;
+        } else {
+            const path = jQuery('.routes > path')[0]
+            const length = path.getTotalLength();
+            var zoom = length/300;
+        }
+        map.centerAndZoom(featureLayer.graphics[0]._extent.getCenter(), zoom);
         var routesParent = routes.parentElement;
         console.log(routes)
         var routesPath = routes.getElementsByTagName('path')[0];
