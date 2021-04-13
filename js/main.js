@@ -30,6 +30,10 @@ const routesObject = {
     "nicaragua-costa rica-mexico": {
         "zoom": 4,
         "labelPosition": "auto"
+    },
+    "damascus-jordan": {
+        zoom: 5,
+        "labelPosition": "auto"
     }
 }
 
@@ -170,7 +174,7 @@ window.onload = function() {
     function waitForEl(selector, callback) {
         try {
         
-        if (jQuery(selector)[0].childNodes.length > 1) {
+        if (jQuery(selector)[0]) {
             callback();
         }
         else {
@@ -214,11 +218,8 @@ window.onload = function() {
         styles = document.createElementNS("http://www.w3.org/2000/svg", 'style');
         routesParent.appendChild(styles);
 
-        
-
         setAnimationPath(routes.getElementsByTagName('path')[0].getAttribute('d'));
 
-        
 
         map.on("extent-change", function(e){
             waitForEl(('.routes'), () => {
@@ -231,18 +232,13 @@ window.onload = function() {
                     createArrow(routes);
                     
                 }
-                createLabels(routesParent, routesObject[route].labelPosition);
-                
-                //console.log(routes.getElementsByTagName('path')[0].getAttribute('d'))
-
-            })
-        })
-        
-        
-
-
-        createArrow(routes);
-    })
+                waitForEl(('text'), ()=> {
+                    createLabels(routesParent, routesObject[route].labelPosition);
+                });
+                createArrow(routes);
+            });
+            
+        });
 
 
     function createLabels(parent, position) {
@@ -373,6 +369,7 @@ function createArrowAnimation(i, number) {
   }
  
   
+    });
 }
 
 function addTextBuffer() {
@@ -401,4 +398,3 @@ function clearCssSheet(css) {
         }  
     }
 }
-
