@@ -3,6 +3,7 @@ var mouseOver; //used for feature hover
 var mouseOut; //used for feature hover
 var styles;
 var featureLayer;
+var citiesLayer
 var css;
 var cities;
 
@@ -25,6 +26,10 @@ const routesObject = {
         "zoom": 3,
         "labelPosition": "center-bottom"
 
+    },
+    "nicaragua-costa rica-mexico": {
+        "zoom": 4,
+        "labelPosition": "auto"
     }
 }
 
@@ -58,8 +63,7 @@ require([
     
     //create map
     map = new Map("map", {
-        center: [36.8, 36.8],
-        zoom: routesObject[route].zoom,
+        //zoom: routesObject[route].zoom,
         slider: false,
         showLabels: true
         //minZoom: 2,
@@ -68,18 +72,18 @@ require([
     map.addLayer(basemap);
 
     map.on("load", () => {
-        map.disableMapNavigation();
+        //map.disableMapNavigation();
     })
 
     //load feature layer
     featureLayer = new FeatureLayer(viewLines, {
-        mode: FeatureLayer.MODE_SNAPSHOT,
+        mode: FeatureLayer.MODE_ONDEMAND,
         outFields: ["*"],
         className: "routes"
         
     });
 
-    var citiesLayer = new FeatureLayer('https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/journeys_destinations/FeatureServer/0', {
+    citiesLayer = new FeatureLayer('https://services3.arcgis.com/iuNbZYJOrAYBrPyC/arcgis/rest/services/Journeys_Stops_(view)/FeatureServer/0', {
         mode: FeatureLayer.MODE_ONDEMAND,
         outFields: ["*"],
         className: "cities",
@@ -92,7 +96,7 @@ require([
     citiesLabel.font.setFamily("avenir");
 
     var labelJson = {
-        "labelExpressionInfo": {"value": "{City}"},
+        "labelExpressionInfo": {"value": "{Name}"},
         "labelPlacement": "left-center"
       };
 
@@ -108,21 +112,22 @@ require([
     cities = route.split("-")
     featureLayer.setDefinitionExpression(`name = '${route}'`);
     const citiesDefinition = (cities) => {
-        var definition = `City = '${cities[0]}' OR City = '${cities[1]}'`
+        var definition = `Name = '${cities[0]}' OR Name = '${cities[1]}'`
         if (cities.length === 2) {
             return definition
         } else if (cities.length > 2) {
             var i = 2;
             while (i < cities.length) {
-                definition += `OR City = '${cities[i]}'`
+                definition += `OR Name = '${cities[i]}'`
                 i++
             }
             return definition
         }
     }
-    citiesLayer.setDefinitionExpression(citiesDefinition(cities))
-    map.addLayer(featureLayer);
+    citiesLayer.setDefinitionExpression(citiesDefinition(cities));
     map.addLayer(citiesLayer);
+    map.addLayer(featureLayer);
+    
 
     
 
@@ -162,126 +167,122 @@ document.ontouchmove = function(event) {
 
 window.onload = function() {
 
- function waitForEl(selector, callback) {
-    try {
-      
-      if (jQuery(selector)[0].childNodes.length > 1) {
-        callback();
-      }
-      else {
-        setTimeout(function() {
-            waitForEl(selector, callback);
-          }, 100);
-      }
-    } catch(error) {
-        console.log(error);
-        setTimeout(function() {
-            waitForEl(selector, callback);
-          }, 100);
-    }
-  };
-
-
-  waitForEl('.routes', () => {
-    
-    map.centerAt(featureLayer.graphics[0]._extent.getCenter());
-    var routes = document.getElementsByClassName('routes')[0];
-    var routesParent = routes.parentElement;
-    console.log(routes)
-    var routesPath = routes.getElementsByTagName('path')[0];
-    routesPath.id = 'routePath';
-    var defs = routesParent.getElementsByTagName('defs')[0];
-    
-    
-    var marker =  document.createElementNS("http://www.w3.org/2000/svg", 'marker');
-    var markerPath = document.createElementNS("http://www.w3.org/2000/svg", 'path');
-    markerPath.setAttribute('d', 'm 426.71429,539.79074 1.95349,-1.875 4.29767,-4.125 0.13024,0.125 0.39069,0.375 0.22791,0.21875 -4.29768,4.125 -1.23721,1.15625 1.23721,1.15625 4.29768,4.125 -0.74884,0.71875 -4.29767,-4.125 -1.95349,-1.875 z');
-    markerPath.classList.add('marker-arrow-path');
-    marker.id = ('arrow');
-    marker.appendChild(markerPath);
-    //marker.setAttribute('viewBox', "0 0 160 160");
-    marker.setAttribute('markerWidth', "6");
-    marker.setAttribute('markerHeight', "6");
-
-    defs.appendChild(marker);
-    routesPath.setAttribute('marker-pattern', 'url(#arrow)');
-
-    // Add styles to svg
-    styles = document.createElementNS("http://www.w3.org/2000/svg", 'style');
-    routesParent.appendChild(styles);
-
-    createLabels(routesParent, routesObject[route].labelPosition);
-
-    setAnimationPath(routes.getElementsByTagName('path')[0].getAttribute('d'));
-
-    
-
-    map.on("extent-change", function(e){
-        waitForEl(('.routes'), () => {
-            const path = routes.getElementsByTagName('path')[0].getAttribute('d')
-            setAnimationPath(path);
-            if (e.levelChange) {
-                createArrow(routes);
-            }
-            
-            //console.log(routes.getElementsByTagName('path')[0].getAttribute('d'))
-
-        })
-    })
-    
-
-
-    createArrow(routes);
-})
-
-
-function createLabels(parent, position) {
-    
-    const textCollection = jQuery('text');
-
-    if (jQuery('.cities-labels').length < cities.length) {
-        for (var text of textCollection) {
-            matrices = {
-                "center-right" : 'matrix(1, 0, 0, 1, 0, 0)',
-                "center-top": {
-                    'x': parseInt(text.getAttribute('x')) - 40,
-                    'y': parseInt(text.getAttribute('y')) - 20
-                },
-                "center-bottom": {
-                    'x': parseInt(text.getAttribute('x')) - 40,
-                    'y': parseInt(text.getAttribute('y')) + 40
-                },
-                "auto" : {
-                    'x': parseInt(text.getAttribute('x')),
-                    'y': parseInt(text.getAttribute('y'))
-                }
-            }
-            const [x, y] = Object.values(matrices[position])
-            //y = y.toString();
-            //console.log(y)
-            var label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
-            setAttributes(label, {
-                'x': x.toString(),
-                'y': y.toString(), //text.getAttribute('y'), //`${text.getAttribute('y') + 1}` ,
-                'baseline': 'alphabetic',
-                'class': 'cities-labels'
-                
-            })
-            label.innerHTML = text.innerHTML;
-            parent.appendChild(label);
+    function waitForEl(selector, callback) {
+        try {
+        
+        if (jQuery(selector)[0].childNodes.length > 1) {
+            callback();
+        }
+        else {
+            setTimeout(function() {
+                waitForEl(selector, callback);
+            }, 100);
+        }
+        } catch(error) {
+            console.log(error);
+            setTimeout(function() {
+                waitForEl(selector, callback);
+            }, 100);
         }
     }
-}
 
 
+    waitForEl('.routes', () => {
+        var routes = document.getElementsByClassName('routes')[0];
+        map.centerAndZoom(featureLayer.graphics[0]._extent.getCenter(), routesObject[route].zoom);
+        var routesParent = routes.parentElement;
+        console.log(routes)
+        var routesPath = routes.getElementsByTagName('path')[0];
+        routesPath.id = 'routePath';
+        var defs = routesParent.getElementsByTagName('defs')[0];
+        
+        
+        var marker =  document.createElementNS("http://www.w3.org/2000/svg", 'marker');
+        var markerPath = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+        markerPath.setAttribute('d', 'm 426.71429,539.79074 1.95349,-1.875 4.29767,-4.125 0.13024,0.125 0.39069,0.375 0.22791,0.21875 -4.29768,4.125 -1.23721,1.15625 1.23721,1.15625 4.29768,4.125 -0.74884,0.71875 -4.29767,-4.125 -1.95349,-1.875 z');
+        markerPath.classList.add('marker-arrow-path');
+        marker.id = ('arrow');
+        marker.appendChild(markerPath);
+        //marker.setAttribute('viewBox', "0 0 160 160");
+        marker.setAttribute('markerWidth', "6");
+        marker.setAttribute('markerHeight', "6");
+
+        defs.appendChild(marker);
+        routesPath.setAttribute('marker-pattern', 'url(#arrow)');
+
+        // Add styles to svg
+        styles = document.createElementNS("http://www.w3.org/2000/svg", 'style');
+        routesParent.appendChild(styles);
+
+        
+
+        setAnimationPath(routes.getElementsByTagName('path')[0].getAttribute('d'));
+
+        
+
+        map.on("extent-change", function(e){
+            waitForEl(('.routes'), () => {
+                const path = routes.getElementsByTagName('path')[0].getAttribute('d')
+                setAnimationPath(path);
+                if (e.levelChange) {
+                    createArrow(routes);
+                }
+                createLabels(routesParent, routesObject[route].labelPosition);
+                
+                //console.log(routes.getElementsByTagName('path')[0].getAttribute('d'))
+
+            })
+        })
+        
+        
 
 
-// Helper function to set multiple attributes on a DOM element with object
-function setAttributes(el, attrs) {
-    for (var key in attrs) {
-      el.setAttribute(key, attrs[key]);
+        createArrow(routes);
+    })
+
+
+    function createLabels(parent, position) {
+        const textCollection = jQuery('text');
+        if (jQuery('.cities-labels').length < cities.length) {
+            for (var text of textCollection) {
+                matrices = {
+                    "center-right" : 'matrix(1, 0, 0, 1, 0, 0)',
+                    "center-top": {
+                        'x': parseInt(text.getAttribute('x')) - 40,
+                        'y': parseInt(text.getAttribute('y')) - 20
+                    },
+                    "center-bottom": {
+                        'x': parseInt(text.getAttribute('x')) - 40,
+                        'y': parseInt(text.getAttribute('y')) + 40
+                    },
+                    "auto" : {
+                        'x': parseInt(text.getAttribute('x')),
+                        'y': parseInt(text.getAttribute('y'))
+                    }
+                }
+                const [x, y] = Object.values(matrices[position])
+                //y = y.toString();
+                //console.log(y)
+                var label = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                setAttributes(label, {
+                    'x': x.toString(),
+                    'y': y.toString(), //text.getAttribute('y'), //`${text.getAttribute('y') + 1}` ,
+                    'baseline': 'alphabetic',
+                    'class': 'cities-labels'
+                    
+                })
+                label.innerHTML = text.innerHTML;
+                parent.appendChild(label);
+            }
+        }
     }
-  }
+
+    // Helper function to set multiple attributes on a DOM element with object
+    function setAttributes(el, attrs) {
+        for (var key in attrs) {
+        el.setAttribute(key, attrs[key]);
+        }
+    }
 
 var element = document.createElement('style');
 
