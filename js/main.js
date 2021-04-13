@@ -345,11 +345,14 @@ function createArrowAnimation(i, number) {
             0% {
                 offset-distance: ${start}%;
             }
-            ${end-5}% {
+            ${end-10}% {
                 opacity: 1;
             }
+            ${end-5}% {
+                opacity: 0;
+            }
             ${end}% {
-                offset-distance: 99%;
+                offset-distance: 100%;
                 opacity: 0;
             }
             ${end+1}% {

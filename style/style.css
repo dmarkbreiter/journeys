@@ -31,8 +31,8 @@ text {
 /*-----------------SVG ANNIMATION-------------------*/
 .cities > path{
     stroke:#D45D04;
-    stroke-width: 20;
-    stroke-opacity: 0.99;
+    stroke-width: 25;
+    stroke-opacity: 1;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
